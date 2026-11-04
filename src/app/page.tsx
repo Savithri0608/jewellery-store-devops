@@ -90,8 +90,10 @@ export default function Home() {
         const parsedCart = JSON.parse(savedCart);
 
         if (Array.isArray(parsedCart)) {
-          setCart(parsedCart);
-        }
+      // Restore saved cart after browser hydration.
+     // eslint-disable-next-line react-hooks/set-state-in-effect
+     setCart(parsedCart);
+    }
       } catch {
         localStorage.removeItem("jewellery-cart");
       }
@@ -436,7 +438,7 @@ export default function Home() {
             <h3 className="font-serif text-xl">Stay Connected</h3>
 
             <p className="mt-4 text-sm text-white/60">
-              Have questions? We'd love to hear from you.
+              Have questions? We&apos;d love to hear from you.
             </p>
 
             <a

@@ -28,8 +28,10 @@ export default function CartPage() {
         const parsedCart = JSON.parse(savedCart);
 
         if (Array.isArray(parsedCart)) {
-          setCart(parsedCart);
-        }
+       // Restore the saved cart after browser hydration.
+       // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCart(parsedCart);
+      }
       } catch {
         localStorage.removeItem("jewellery-cart");
       }

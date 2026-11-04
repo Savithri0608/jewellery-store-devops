@@ -32,20 +32,25 @@ export default function CheckoutPage() {
     payment_method: "COD",
   });
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem("jewellery-cart");
+ useEffect(() => {
+  const savedCart = localStorage.getItem("jewellery-cart");
 
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch {
-        setCart([]);
+  if (savedCart) {
+    try {
+      const parsedCart = JSON.parse(savedCart);
+
+      if (Array.isArray(parsedCart)) {
+        // Restore saved cart after browser hydration.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCart(parsedCart);
       }
+    } catch {
+      localStorage.removeItem("jewellery-cart");
     }
+  }
 
-    setCartLoaded(true);
-  }, []);
-
+  setCartLoaded(true);
+}, []);
   const subtotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0

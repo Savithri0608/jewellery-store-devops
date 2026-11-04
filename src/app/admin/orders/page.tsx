@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -61,11 +61,8 @@ export default function AdminOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  // Fetch orders from Supabase
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -97,7 +94,13 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  // Load orders when the component mounts
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  fetchOrders();
+}, [fetchOrders]);
 
   // Filter orders using search text and selected status
   const filteredOrders = orders.filter((order) => {
@@ -122,6 +125,7 @@ export default function AdminOrdersPage() {
     setStatusFilter("ALL");
   };
 
+  // Update order status
   const updateOrderStatus = async (
     orderId: string,
     newStatus: string
@@ -164,6 +168,7 @@ export default function AdminOrdersPage() {
     }
   };
 
+  // Cancel order and restore stock
   const cancelOrder = async (orderId: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to cancel this order? The purchased product quantities will be returned to stock."
