@@ -78,9 +78,24 @@ jobs:
           script: |
             set -e
 
+            echo "Checking GHCR authentication token..."
+
+            if [ -z "$GHCR_PAT" ]; then
+              echo "ERROR: GHCR_PAT was not received by EC2."
+              exit 1
+            fi
+
+            echo "GHCR_PAT received successfully."
+
             printf '%s' "$GHCR_PAT" | docker login ghcr.io -u savithri0608 --password-stdin
 
+            echo "Pulling latest Docker image..."
+
             docker pull ghcr.io/savithri0608/jewellery-store-devops:latest
+
+            echo "Starting temporary container..."
+
+            docker rm -f jewellery-store-new 2>/dev/null || true
 
             docker run -d \
               --name jewellery-store-new \
@@ -89,18 +104,24 @@ jobs:
               --env-file /home/ubuntu/.env.local \
               ghcr.io/savithri0608/jewellery-store-devops:latest
 
+            echo "Checking application health..."
+
             for i in $(seq 1 12); do
               if curl -fsS http://localhost:8080/ > /dev/null; then
+                echo "Application health check passed."
                 break
               fi
               sleep 5
             done
 
             if ! curl -fsS http://localhost:8080/ > /dev/null; then
+              echo "Application health check failed."
               docker logs jewellery-store-new
               docker rm -f jewellery-store-new
               exit 1
             fi
+
+            echo "Replacing production container..."
 
             docker stop jewellery-store || true
             docker rm jewellery-store || true
@@ -116,3 +137,5 @@ jobs:
               ghcr.io/savithri0608/jewellery-store-devops:latest
 
             docker logout ghcr.io
+
+            echo "Deployment completed successfully."
