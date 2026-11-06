@@ -78,7 +78,7 @@ jobs:
           script: |
             set -e
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u savithri0608 --password-stdin
+            printf '%s' "$GHCR_PAT" | docker login ghcr.io -u savithri0608 --password-stdin
 
             docker pull ghcr.io/savithri0608/jewellery-store-devops:latest
 
